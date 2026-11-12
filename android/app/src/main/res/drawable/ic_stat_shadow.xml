@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status bar icon: a person with a shadow. White on transparent. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6,3h3v3h-3zM5,7h5v7h-5zM5,15h2v4h-2zM8,15h2v4h-2zM14,5h2v2h-2zM13,8h4v2h-4zM16,8h4v2h-4zM13,11h2v2h-2zM17,11h2v2h-2zM14,14h2v2h-2zM18,14h2v2h-2z" />
+</vector>

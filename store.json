@@ -1,0 +1,11 @@
+{
+  "id": "shadow",
+  "name": "Shadow",
+  "repo": "its-ash/shadow",
+  "package": "com.itsash.shadow",
+  "tagline": "Warns when an unknown Bluetooth tracker, such as an AirTag, seems to travel with you.",
+  "description": "Shadow is an anti-stalking helper. It listens for Bluetooth item trackers (Apple AirTag and Find My accessories, Samsung SmartTag, Tile, Chipolo and Google Find My Device trackers) and warns you when the same one keeps showing up near you across time and places. Scan now lists the trackers around you and a hot/cold finder helps you locate one. Optional background protection scans quietly every few minutes and sends an alert when a tracker has been with you for about half an hour and at least two places. You can ignore your own trackers. Everything stays on your phone; no account, no analytics.",
+  "category": "Safety",
+  "icon": "assets/icon/logo-1024.png",
+  "homepage": "https://shadow.itsash.in/"
+}

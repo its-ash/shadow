@@ -12,7 +12,7 @@ data class ScanDevice(
 )
 
 /** Aggregates the advertisements of one foreground scan (pure; tested in ScanSessionTest). */
-class ScanSession(private val ignored: Set<String> = emptySet()) {
+class ScanSession(ignored: Set<String> = emptySet()) {
     private class Acc(val address: String, var adv: Adv) {
         var cls: Classification? = null
         var rssi = 0
@@ -21,8 +21,16 @@ class ScanSession(private val ignored: Set<String> = emptySet()) {
         var last = 0L
     }
 
+    private val ignored = ignored.toMutableSet()
     private val devices = LinkedHashMap<String, Acc>()
 
+    @Synchronized
+    fun ignore(ids: Set<String>) {
+        ignored.addAll(ids)
+        devices.entries.removeAll { (id, a) -> id in ids || "a:${a.address}" in ids }
+    }
+
+    @Synchronized
     fun add(address: String, adv: Adv, rssi: Int, nowMs: Long) {
         val cls = TrackerFormats.classify(adv)
         val key = cls?.key
@@ -39,6 +47,7 @@ class ScanSession(private val ignored: Set<String> = emptySet()) {
     }
 
     /** Trackers first (strongest signal first), then at most [maxGeneric] generic devices. */
+    @Synchronized
     fun snapshot(maxGeneric: Int = 5): List<ScanDevice> {
         val out = ArrayList<ScanDevice>()
         val generic = ArrayList<ScanDevice>()

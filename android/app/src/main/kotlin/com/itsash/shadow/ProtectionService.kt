@@ -131,12 +131,14 @@ class ProtectionService : Service() {
             return
         }
         scanning = true
-        wakeLock = getSystemService(PowerManager::class.java)
-            .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "shadow:scan")
-            .apply {
-                setReferenceCounted(false)
-                acquire(SCAN_MS + 15_000L)
-            }
+        wakeLock = runCatching {
+            getSystemService(PowerManager::class.java)
+                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "shadow:scan")
+                .apply {
+                    setReferenceCounted(false)
+                    acquire(SCAN_MS + 15_000L)
+                }
+        }.getOrNull()
         handler.postDelayed({ finishCycle() }, SCAN_MS)
     }
 

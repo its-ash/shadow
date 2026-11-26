@@ -32,6 +32,7 @@ class MainActivity : FlutterActivity() {
     private var pendingPermissions: MethodChannel.Result? = null
     private var scanTick: Runnable? = null
     private var scanner: BleScanner? = null
+    private var scanSession: ScanSession? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -69,7 +70,9 @@ class MainActivity : FlutterActivity() {
                     }
                     "alerts" -> result.success(ShadowState.alertMaps())
                     "ignore" -> {
-                        ShadowState.ignore(call.argument<List<String>>("ids") ?: emptyList())
+                        val ids = call.argument<List<String>>("ids") ?: emptyList()
+                        ShadowState.ignore(ids)
+                        scanSession?.ignore(ids.toSet())
                         result.success(null)
                     }
                     "ignoredCount" -> result.success(ShadowState.ignoredCount())
@@ -105,6 +108,7 @@ class MainActivity : FlutterActivity() {
             return
         }
         val session = ScanSession(ShadowState.ignoredIds())
+        scanSession = session
         val sc = BleScanner(this)
         scanner = sc
         val ok = sc.start(emptyList(), lowLatency = true) { addr, adv, rssi ->
@@ -112,6 +116,7 @@ class MainActivity : FlutterActivity() {
         }
         if (!ok) {
             scanner = null
+            scanSession = null
             events.error("scan_failed", "bluetooth_off", null)
             return
         }
@@ -121,7 +126,10 @@ class MainActivity : FlutterActivity() {
             override fun run() {
                 val now = System.currentTimeMillis()
                 val done = now - begin >= total
-                if (done) sc.stop()
+                if (done) {
+                    sc.stop()
+                    scanSession = null
+                }
                 events.success(
                     mapOf(
                         "elapsedMs" to minOf(now - begin, total),
@@ -154,6 +162,7 @@ class MainActivity : FlutterActivity() {
         scanTick = null
         scanner?.stop()
         scanner = null
+        scanSession = null
     }
 
     override fun onDestroy() {

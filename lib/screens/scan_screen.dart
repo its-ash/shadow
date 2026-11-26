@@ -40,6 +40,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   Future<void> _start() async {
     await _sub?.cancel();
+    if (!mounted) return;
     setState(() {
       _error = null;
       _running = true;
@@ -94,11 +95,13 @@ class _ScanScreenState extends State<ScanScreen> {
     if (!ok || !mounted) return;
     await widget.platform.ignore([d.id]);
     if (!mounted) return;
+    final u = _update;
+    if (u == null) return;
     setState(() => _update = ScanUpdate(
-          elapsedMs: _update!.elapsedMs,
-          totalMs: _update!.totalMs,
-          done: _update!.done,
-          devices: [for (final x in _update!.devices) if (x.id != d.id) x],
+          elapsedMs: u.elapsedMs,
+          totalMs: u.totalMs,
+          done: u.done,
+          devices: [for (final x in u.devices) if (x.id != d.id) x],
         ));
   }
 

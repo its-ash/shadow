@@ -19,10 +19,16 @@ class ProtectionStore extends ChangeNotifier {
 
   /// A short message for the user when turning protection on did not work.
   String? error;
+  bool _disposed = false;
+
+  void _notify() {
+    if (!_disposed) notifyListeners();
+  }
 
   Future<void> load() async {
     try {
       final r = await Future.wait<Object>([_platform.getConfig(), _platform.status(), _platform.alerts()]);
+      if (_disposed) return;
       config = r[0] as ShadowConfig;
       status = r[1] as PlatformStatus;
       alerts = r[2] as List<AlertRecord>;
@@ -30,7 +36,7 @@ class ProtectionStore extends ChangeNotifier {
       // Keep the previous state; the screen shows what it has.
     }
     loaded = true;
-    notifyListeners();
+    _notify();
   }
 
   /// Asks for permissions if needed, then switches the service. Returns whether protection is on afterwards.
@@ -38,7 +44,7 @@ class ProtectionStore extends ChangeNotifier {
     if (busy) return config.protection;
     busy = true;
     error = null;
-    notifyListeners();
+    _notify();
     try {
       if (on) {
         if (!status.bluetoothPermission || !status.locationPermission || !status.notifications) {
@@ -61,23 +67,31 @@ class ProtectionStore extends ChangeNotifier {
       return false;
     } finally {
       busy = false;
-      notifyListeners();
+      _notify();
     }
   }
 
   Future<void> requestPermissions() async {
     status = await _platform.requestPermissions();
-    notifyListeners();
+    _notify();
   }
 
   Future<void> ignoreAlert(AlertRecord a) async {
     await _platform.ignore(a.ids);
+    if (_disposed) return;
     alerts = [for (final x in alerts) x.ids.any(a.ids.contains) ? x.asIgnored() : x];
-    notifyListeners();
+    _notify();
   }
 
   Future<void> clearData({bool includeIgnored = false}) async {
     await _platform.clearData(includeIgnored: includeIgnored);
+    if (_disposed) return;
     await load();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
   }
 }

@@ -40,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _push(Widget page) async {
     await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
+    if (!mounted) return;
     _store.load();
   }
 
